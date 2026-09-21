@@ -1,25 +1,22 @@
--- ============================================
--- 1. UTILITY & SERVICES
--- ============================================
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
--- Clean up UI lama jika ada
+-- Clean UI Lama
 if player.PlayerGui:FindFirstChild("RynaHubUI") then
     player.PlayerGui.RynaHubUI:Destroy()
 end
 
 -- ============================================
--- 2. GUI BASE (Liquid Glass Style)
+-- GUI BASE (Liquid Glass Style)
 -- ============================================
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "RynaHubUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- MAIN HUB FRAME
+-- MAIN FRAME
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 380, 0, 240)
 mainFrame.Position = UDim2.new(0.5, -190, 0.5, -120)
@@ -28,7 +25,7 @@ mainFrame.BackgroundTransparency = 0.25
 mainFrame.BorderSizePixel = 0
 mainFrame.Visible = false
 mainFrame.Active = true
-mainFrame.Draggable = true -- UI Bisa digeser-geser
+mainFrame.Draggable = true
 mainFrame.Parent = screenGui
 
 local mainCorner = Instance.new("UICorner")
@@ -41,7 +38,6 @@ mainStroke.Transparency = 0.75
 mainStroke.Thickness = 1.5
 mainStroke.Parent = mainFrame
 
--- Title
 local mainTitle = Instance.new("TextLabel")
 mainTitle.Size = UDim2.new(1, -20, 0, 40)
 mainTitle.Position = UDim2.new(0, 15, 0, 10)
@@ -53,7 +49,6 @@ mainTitle.TextXAlignment = Enum.TextXAlignment.Left
 mainTitle.BackgroundTransparency = 1
 mainTitle.Parent = mainFrame
 
--- Watermark Main UI
 local mainWatermark = Instance.new("TextLabel")
 mainWatermark.Size = UDim2.new(0, 100, 0, 20)
 mainWatermark.Position = UDim2.new(1, -115, 0, 20)
@@ -65,7 +60,6 @@ mainWatermark.TextXAlignment = Enum.TextXAlignment.Right
 mainWatermark.BackgroundTransparency = 1
 mainWatermark.Parent = mainFrame
 
--- Container Tombol
 local buttonContainer = Instance.new("Frame")
 buttonContainer.Size = UDim2.new(1, -30, 1, -70)
 buttonContainer.Position = UDim2.new(0, 15, 0, 55)
@@ -77,7 +71,6 @@ uilist.SortOrder = Enum.SortOrder.LayoutOrder
 uilist.Padding = UDim.new(0, 10)
 uilist.Parent = buttonContainer
 
--- Fungsi Buat Tombol Liquid Glass
 local function createGlassButton(text, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, 0, 0, 40)
@@ -100,7 +93,6 @@ local function createGlassButton(text, callback)
     btnStroke.Thickness = 1
     btnStroke.Parent = btn
 
-    -- Animasi Hover
     btn.MouseEnter:Connect(function()
         TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundTransparency = 0.8}):Play()
         TweenService:Create(btnStroke, TweenInfo.new(0.2), {Transparency = 0.5}):Play()
@@ -113,9 +105,7 @@ local function createGlassButton(text, callback)
     btn.MouseButton1Click:Connect(callback)
 end
 
--- ============================================
--- 3. LOADING FRAME (Satu Kali Muncul)
--- ============================================
+-- LOADING FRAME
 local loadingFrame = Instance.new("Frame")
 loadingFrame.Size = UDim2.new(0, 320, 0, 160)
 loadingFrame.Position = UDim2.new(0.5, -160, 0.5, -80)
@@ -165,77 +155,31 @@ watermark.TextXAlignment = Enum.TextXAlignment.Right
 watermark.BackgroundTransparency = 1
 watermark.Parent = loadingFrame
 
--- ============================================
--- 4. FITUR LOGIC
--- ============================================
-local HEADLESS_MESH_ID = "rbxassetid://1095708"
-local KORBLOX_MESH_ID = "rbxassetid://101851696"
-local KORBLOX_TEXTURE_ID = "rbxassetid://101851254"
-
-local function applyAvatars(character)
-    if not character then return end
-    
-    -- Headless
-    local head = character:FindFirstChild("Head")
-    if head then
-        head.Transparency = 1
-        head.CanCollide = false
-        local face = head:FindFirstChildOfClass("Decal")
-        if face then face:Destroy() end
-        for _, v in ipairs(head:GetChildren()) do
-            if v:IsA("SpecialMesh") or v:IsA("CharacterMesh") then v:Destroy() end
-        end
-        local mesh = Instance.new("SpecialMesh")
-        mesh.MeshType = Enum.MeshType.FileMesh
-        mesh.MeshId = HEADLESS_MESH_ID
-        mesh.Scale = Vector3.new(0.001, 0.001, 0.001)
-        mesh.Parent = head
-    end
-
-    -- Korblox
-    local rightLeg = character:FindFirstChild("Right Leg")
-    if rightLeg then
-        for _, v in ipairs(rightLeg:GetChildren()) do
-            if v:IsA("SpecialMesh") or v:IsA("CharacterMesh") then v:Destroy() end
-        end
-        local mesh = Instance.new("SpecialMesh")
-        mesh.MeshType = Enum.MeshType.FileMesh
-        mesh.MeshId = KORBLOX_MESH_ID
-        mesh.TextureId = KORBLOX_TEXTURE_ID
-        mesh.Scale = Vector3.new(1, 1, 1)
-        mesh.Parent = rightLeg
-    end
-end
-
--- Tambah Tombol di Main Hub
-createGlassButton("Re-Apply Korblox & Headless", function()
-    if player.Character then applyAvatars(player.Character) end
+-- Tombol UI
+createGlassButton("Load Korblox & Headless", function()
+    task.spawn(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Fahry44/Ryna-Hub/refs/heads/main/korblox.lua"))()
+    end)
 end)
 
 createGlassButton("Open Emotes Hub", function()
-    pcall(function()
-        local emoteFunc = loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))
-        if emoteFunc then emoteFunc() end
+    task.spawn(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))()
     end)
 end)
 
--- ============================================
--- 5. EXECUTION & ANIMATION
--- ============================================
+-- LOGIC UTAMA
 task.spawn(function()
     task.wait(0.5)
-    statusLabel.Text = "Applying Korblox & Headless..."
-    if player.Character then applyAvatars(player.Character) end
-    player.CharacterAdded:Connect(function(char)
-        task.wait(1)
-        applyAvatars(char)
+    statusLabel.Text = "Loading Korblox Script..."
+    task.spawn(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Fahry44/Ryna-Hub/refs/heads/main/korblox.lua"))()
     end)
     
     task.wait(0.8)
-    statusLabel.Text = "Loading Emotes Hub..."
-    pcall(function()
-        local emoteFunc = loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))
-        if emoteFunc then emoteFunc() end
+    statusLabel.Text = "Loading Emotes Script..."
+    task.spawn(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))()
     end)
     
     statusLabel.Text = "Ready!"
@@ -252,11 +196,11 @@ task.spawn(function()
     
     fadeOut.Completed:Connect(function()
         loadingFrame:Destroy()
-        mainFrame.Visible = true -- Tampilkan Main Hub UI
+        mainFrame.Visible = true
     end)
 end)
 
--- Toggle Keybind (Tombol "`")
+-- Toggle Shortcut (Tombol "`")
 local TOGGLE_KEY = Enum.KeyCode.Backquote
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == TOGGLE_KEY then

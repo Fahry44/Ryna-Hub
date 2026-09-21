@@ -126,7 +126,18 @@ task.spawn(function()
     
     task.wait(0.8)
     statusLabel.Text = "Loading Emotes Hub..."
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))()
+    
+    -- Safe Loadstring Call
+    local success, err = pcall(function()
+        local emoteFunc = loadstring(game:HttpGet("https://raw.githubusercontent.com/7yd7/Hub/refs/heads/Branch/GUIS/Emotes.lua"))
+        if emoteFunc then
+            emoteFunc()
+        end
+    end)
+    
+    if not success then
+        warn("Emote load error: ", err)
+    end
     
     statusLabel.Text = "Ready!"
     task.wait(0.5)
